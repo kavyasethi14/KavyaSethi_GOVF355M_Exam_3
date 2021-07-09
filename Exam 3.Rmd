@@ -1,0 +1,344 @@
+---
+title: "Exam 3"
+author: "Kavya Sethi"
+date: "7/8/2021"
+output: 
+  word_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1. Clear the evironment
+
+
+```{r}
+rm(list=ls(all=TRUE))
+```
+
+# 2. Female Labor Force Participation download
+
+Googled the indicator and got https://data.worldbank.org/indicator/SL.TLF.CACT.FE.ZS as the website. 
+
+
+```{r}
+library(WDI)
+
+female_lfp = WDI(country = "all", indicator = c("SL.TLF.CACT.FE.ZS"),
+  start = 2010, # start of Female Labor Force Data 
+  end = 2015, # end of of Female Labor Force Data 
+  extra = FALSE, cache = NULL)
+```
+
+# 3. Rename female labor force participation variable 
+
+```{r}
+library(data.table) 
+setnames(female_lfp,"SL.TLF.CACT.FE.ZS", "flfp",skip_absent = TRUE)
+```
+
+# 4. Collapse female_lfp by the mean value for flfp for each country.
+
+```{r}
+#collapsed_flfp <-  
+ #female_lfp
+
+#collapsed_flfp <-  
+ #female_lfp %>% 
+  #group_by(country,iso2c) %>% 
+  #ummarize(flfp = mean(flfp, na.rm=TRUE))
+
+#collapsed_flfp$year = NULL # Removes year from dataframe
+
+```
+
+
+
+# 5. Show participation rates that are less than 15% 
+
+
+```{r}
+library(dplyr)
+
+#filter(collapsed_flfp,flfp <= 15)
+```
+
+
+
+# 6. World Map presenting collapsed_flfp data. 
+
+## Must first run necessary libraries. 
+```{r}
+library(rio) 
+library(tidyverse)
+
+library(googlesheets4) 
+library(labelled) 
+library(data.table)
+
+library(varhandle) 
+library(ggrepel) 
+library(geosphere) 
+library(rgeos)
+
+library(viridis)
+
+library(mapview)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(devtools)
+
+library(remotes)
+
+library(raster)
+
+library(sp)
+
+library(sf)
+
+library(Imap)
+
+
+library(rnaturalearthhires)
+library(ggsflabel)
+```
+
+
+## Loading/Transforming Shapefiles
+
+Must first load shape file of the world. 
+
+```{r}
+world_borders <- st_read('/Users/kavyasethi/Documents/DataScience/Module 11 - GIS/world border shape files')
+```
+
+Now transform shapefiles into WGS84 format. 
+
+```{r}
+borders <-st_transform(world_borders, "+proj=longlat +ellps=WGS84 +datum=WGS84")
+
+# remove world_boarders cus no longer needed. 
+rm(world_borders)
+```
+
+
+## Fix Data for Map 
+
+Drop NAs for Map 
+
+```{r}
+#collapsed_flfp = na.omit(collapsed_flfp,select(flfp))
+```
+
+## Now merge tables of collapsed_flfp and borders to get lat/long 
+
+```{r}
+library(data.table) 
+#setnames(collapsed_flfp,"iso2c","ISO2")
+
+#merged_data = left_join(borders, collapsed_flfp, by=c("ISO2"))
+
+```
+
+
+
+## Now get map of the world
+
+```{r}
+world <- ne_countries(scale = "large", returnclass = "sf")
+```
+
+
+## Now Map the Viridis Color Map
+
+
+```{r}
+#collapsed_flfp_map = ggplot() +
+#geom_sf(data = world) +
+#geom_sf(data = merged_data, aes(fill=`flfp`)) + scale_fill_viridis(option = "viridis") +
+#ggtitle("female labor force participation, 2010-2015") + theme(plot.title = element_text(hjust = 0.5)) +
+#theme_void()
+
+#print(collapsed_flfp_map) Printing was taking to long to load. 
+
+#ggsave(collapsed_flfp_map, filename = "femalelaborforceworldmap.png", width = 6.5, height = 6)
+```
+
+
+# 7. The southern region of Africa has the largest cluster of yellow (percentage of female labor force participation)
+
+
+# 8. Use R to show cluster of yellow states.
+
+The instruction don't detail that it only has to be the cluster that shows up. So looking at color scale, we see upward of 75% are the yellowish states.
+
+```{r}
+library(dplyr)
+
+#filter(collapsed_flfp,flfp >= 75)
+```
+
+
+
+# 9. Shiny components 
+
+Shiny has three main components: UI, Server, Excecution 
+
+The Subcomponents of UI: Input and Output
+
+
+
+
+# 10. Pull Mike Denly's PDF 
+
+
+
+```{r}
+library(pdftools)
+library(tidyr) 
+library(tidytext) 
+library(dplyr) 
+library(stringr) 
+library(ggplot2)
+
+denlypdf = pdf_text("https://pdf.usaid.gov/pdf_docs/PA00TNMJ.pdf")
+
+```
+
+
+# 11. Convert pdf character vector to dataframe 
+
+
+
+```{r}
+armeniatext=as.data.frame(denlypdf)
+armeniatext$page=c(1:59)
+```
+
+
+
+# 12. Tokenize and Remove Stop Words 
+R keeps giving me error for code below. 
+Error: by must be supplied when x and y have no common variables. ℹ use by = character()` to perform a cross-join.
+I am unable to fix the error. I searched online and in notes. I literally copied and pasted the code from the notes. Its not fixable.
+I just put the code down that I know would work from the basis of the notes. Also the notes pdf for harrypoter/trump analysis wasn't live, so I was not able to truly test the concept. 
+
+```{r}
+
+#armeniatext=armeniatext %>% 
+  #unnest_tokens(word, text)
+
+#data(stop_words)
+#armeniatext=armeniatext %>% 
+  #anti_join(stop_words)
+
+```
+
+
+# 13 Figure Out the top 5 Most Common word in report. 
+Continued Error because of previous error. I just put down the code of how to do it. 
+
+```{r}
+#freq <- armeniatext %>% 
+  #count(word, sort = TRUE)
+#head(freq)
+
+```
+
+
+# 14 Load Billboard Page 
+
+
+```{r}
+library(rvest)
+library(dplyr)
+
+
+hot100exampage <- "https://www.billboard.com/charts/hot-100" 
+hot100exam <- read_html(hot100exampage)
+
+hot100exam
+```
+
+# 15 Identify All the nodes in Webpage
+
+```{r}
+body_nodes <- hot100exam %>% 
+  html_node("body") %>% 
+  html_children()
+body_nodes
+
+head_nodes <- hot100exam %>% 
+  html_node("head") %>% 
+  html_children()
+head_nodes
+```
+
+
+
+# 16 Billboard Ranking This Week including last week. 
+
+
+```{r}
+rank <- hot100exam %>%
+rvest::html_nodes('body') %>% 
+xml2::xml_find_all("//span[contains(@class,
+                   'chart-element__rank__number')]") %>%
+rvest::html_text()
+
+artist <- hot100exam %>%
+rvest::html_nodes('body') %>% 
+xml2::xml_find_all("//span[contains(@class,
+                   'chart-element__information__artist')]") %>%
+rvest::html_text()
+
+title <- hot100exam %>% 
+rvest::html_nodes('body') %>% 
+xml2::xml_find_all("//span[contains(@class,
+                   'chart-element__information__song')]") %>%
+rvest::html_text()
+
+lastweek <- hot100exam %>% 
+rvest::html_nodes('body') %>% 
+xml2::xml_find_all("//span[contains(@class,
+                   'chart-element__meta text--center color--secondary text--last')]") %>%
+rvest::html_text()
+
+
+
+chart_df <- data.frame(rank, artist, title,lastweek)
+
+knitr::kable(
+  chart_df %>% head(10))
+
+```
+
+
+
+
+
+
+
+
+# 17. GitHUB repo link 
+
+https://github.com/kavyasethi14/KavyaSethi_GOVF355M_Exam_3.git 
+
+
+
+# 18. Rmarkdwon keeps giving me an error 
+
+I included the pictures in this pdf. So I had to comment every r chunk that included the collapsed_flfp. I know it works when I individually run the chunks, but rmarkdown isn't letting it load. 
+
+[proof of filter working on question 5](proofoffilterworking.png)
+
+
+[error on collapsed_flfp](Rmarkdownerror.png)
+
+Attached proof will also be uploaded to github
+I also exported all the dataframes from where the error occured. Will uplaod to github. I also exported the map, will uplaod to github. 
+
+
+
